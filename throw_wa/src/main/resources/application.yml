@@ -1,0 +1,45 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /ThrowWa
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/nlrunner_db
+    username: nlrunner
+    password: nlrunner
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        show_sql: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE.CLIENT.ID}
+            client-secret: ${GOOGLE.CLIENT.SECRET}
+            scope: email, profile
+            authorization-grant-type: authorization_code
+          kakao:
+            client-id: ${KAKAO.CLIENT.ID}
+            client-secret: ${KAKAO.CLIENT.SECRET}
+            redirect-uri: ${KAKAO.REDIRECT.URI}
+            client-authentication-method: 'client_secret_post'
+            authorization-grant-type: authorization_code
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-info-authentication-method: POST
+            user-name-attribute: id
+
+logging:
+  level:
+    root: info
+    com.project.throw_wa: debug
