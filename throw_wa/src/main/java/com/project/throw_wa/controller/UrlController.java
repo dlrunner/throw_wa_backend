@@ -20,14 +20,18 @@ import java.util.regex.Pattern;
 public class UrlController {
 
     private static final Logger log = LoggerFactory.getLogger(UrlController.class);
+
     @Autowired
     private RestTemplate restTemplate;
 
-    @PostMapping("/process_url")
+    @PostMapping("/url")
     public ResponseEntity<Map<String, Object>> processUrl(@RequestBody Map<String, String> request) {
+        log.info("processUrl 호출됨");
         String url = request.get("url");
-        System.out.println(url);
+        log.info("Received URL: {}", url);
+
         String linkType = detectLinkType(url);
+        log.info("Detected link type: {}", linkType);
 
         String apiUrl;
         switch (linkType) {
@@ -44,6 +48,7 @@ public class UrlController {
                 apiUrl = "http://localhost:8000/api/crawler";
                 break;
             default:
+                log.warn("Unsupported URL type detected: {}", linkType);
                 Map<String, Object> response = new HashMap<>();
                 response.put("success", false);
                 response.put("message", "지원하지 않는 URL 유형입니다.");
@@ -58,21 +63,25 @@ public class UrlController {
             // 파이썬 API에 보낼 데이터
             Map<String, String> requestData = new HashMap<>();
             requestData.put("url", url);
+            log.info("Sending request to Python API: {}", apiUrl);
 
             HttpEntity<Map<String, String>> entity = new HttpEntity<>(requestData, headers);
-            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(apiUrl, HttpMethod.POST, entity, new ParameterizedTypeReference<Map<String, Object>>() {});
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                    apiUrl, HttpMethod.POST, entity, new ParameterizedTypeReference<Map<String, Object>>() {});
 
             // 파이썬 API로부터 응답 받기
             if (response.getStatusCode().is2xxSuccessful()) {
+                log.info("Successfully received response from Python API");
                 return ResponseEntity.ok(response.getBody());
             } else {
+                log.error("Python API call failed with status code: {}", response.getStatusCode());
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("success", false);
                 errorResponse.put("message", "파이썬 API 호출 실패: " + response.getStatusCode());
                 return ResponseEntity.status(response.getStatusCode()).body(errorResponse);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception occurred while calling Python API: {}", e.getMessage(), e);
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("success", false);
             errorResponse.put("message", "서버 오류: " + e.getMessage());
@@ -81,9 +90,9 @@ public class UrlController {
     }
 
     private String detectLinkType(String url) {
-        String youtubePattern = "(https?:\\/\\/)?(www\\.)?(youtube|youtu|youtube-nocookie)\\.(com|be)\\/";
-        String pdfPattern = ".*\\.pdf$";
-        String imagePattern = "\\.(jpeg|jpg|gif|png|bmp|tiff|webp)$";
+        String youtubePattern = "(?i)(https?:\\/\\/)?(www\\.)?(youtube|youtu|youtube-nocookie)\\.(com|be)\\/";
+        String pdfPattern = "(?i)\\.(pdf)$";
+        String imagePattern = "(?i)\\.(jpeg|jpg|gif|png|bmp|tiff|webp)$";
 
         if (Pattern.compile(youtubePattern).matcher(url).find()) {
             return "youtube";
