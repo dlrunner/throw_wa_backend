@@ -1,0 +1,98 @@
+package com.project.throw_wa.controller;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+@RestController
+@RequestMapping("/api")
+public class UrlController {
+
+    private static final Logger log = LoggerFactory.getLogger(UrlController.class);
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @PostMapping("/process_url")
+    public ResponseEntity<Map<String, Object>> processUrl(@RequestBody Map<String, String> request) {
+        String url = request.get("url");
+        System.out.println(url);
+        String linkType = detectLinkType(url);
+
+        String apiUrl;
+        switch (linkType) {
+            case "youtube":
+                apiUrl = "http://localhost:8000/api/youtube_text";
+                break;
+            case "pdf":
+                apiUrl = "http://localhost:8000/api/pdf_text";
+                break;
+            case "image":
+                apiUrl = "http://localhost:8000/api/image_embedding";
+                break;
+            case "web":
+                apiUrl = "http://localhost:8000/api/crawler";
+                break;
+            default:
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "지원하지 않는 URL 유형입니다.");
+                return ResponseEntity.badRequest().body(response);
+        }
+
+        // 파이썬 API에 요청 보내기
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Type", "application/json");
+
+            // 파이썬 API에 보낼 데이터
+            Map<String, String> requestData = new HashMap<>();
+            requestData.put("url", url);
+
+            HttpEntity<Map<String, String>> entity = new HttpEntity<>(requestData, headers);
+            ResponseEntity<Map<String, Object>> response = restTemplate.exchange(apiUrl, HttpMethod.POST, entity, new ParameterizedTypeReference<Map<String, Object>>() {});
+
+            // 파이썬 API로부터 응답 받기
+            if (response.getStatusCode().is2xxSuccessful()) {
+                return ResponseEntity.ok(response.getBody());
+            } else {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("message", "파이썬 API 호출 실패: " + response.getStatusCode());
+                return ResponseEntity.status(response.getStatusCode()).body(errorResponse);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("message", "서버 오류: " + e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
+
+    private String detectLinkType(String url) {
+        String youtubePattern = "(https?:\\/\\/)?(www\\.)?(youtube|youtu|youtube-nocookie)\\.(com|be)\\/";
+        String pdfPattern = ".*\\.pdf$";
+        String imagePattern = "\\.(jpeg|jpg|gif|png|bmp|tiff|webp)$";
+
+        if (Pattern.compile(youtubePattern).matcher(url).find()) {
+            return "youtube";
+        } else if (Pattern.compile(pdfPattern).matcher(url).find()) {
+            return "pdf";
+        } else if (Pattern.compile(imagePattern, Pattern.CASE_INSENSITIVE).matcher(url).find()) {
+            return "image";
+        } else {
+            return "web";
+        }
+    }
+}
