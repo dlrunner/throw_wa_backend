@@ -22,17 +22,14 @@ public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String username;
-    private String password;
-    private String name;
+    @Column(nullable = false, unique = true)
     private String email;
-    private String phone;
+    @Column(nullable = false)
+    private String password;
     @CreationTimestamp
     private LocalDate createdAt;
-    @UpdateTimestamp
-    private LocalDate updatedAt;
 
-    @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "member_id") // authority.member_id 컬럼 작성
-    private List<Authority> authorities;
+//    @OneToMany(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "member_id") // authority.member_id 컬럼 작성
+//    private List<Authority> authorities;
 }

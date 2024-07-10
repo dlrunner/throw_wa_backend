@@ -1,23 +1,21 @@
 package com.project.throw_wa.member.dto;
 
 import com.project.throw_wa.member.entity.Member;
+import jakarta.persistence.Column;
 import lombok.Data;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Data
 public class MemberCreateDto {
-    private String username;
-    private String password;
-    private String name;
+    @Column(nullable = false, unique = true)
     private String email;
-    private String phone;
+    @Column(nullable = false)
+    private String password;
 
     public Member toMember() {
         return Member.builder()
-                .username(username)
-                .password(password)
-                .name(name)
                 .email(email)
-                .phone(phone)
+                .password(password)
                 .build();
     }
 }
