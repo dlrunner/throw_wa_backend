@@ -27,6 +27,7 @@ public class UrlController {
     @PostMapping("/url")
     public ResponseEntity<Map<String, Object>> processUrl(@RequestBody Map<String, String> request) {
         log.info("processUrl 호출됨");
+        log.info("Request body: {}", request);  // 요청 본문 로그 출력
         String url = request.get("url");
         log.info("Received URL: {}", url);
 
@@ -90,9 +91,9 @@ public class UrlController {
     }
 
     private String detectLinkType(String url) {
-        String youtubePattern = "(?i)(https?:\\/\\/)?(www\\.)?(youtube|youtu|youtube-nocookie)\\.(com|be)\\/";
-        String pdfPattern = "(?i)\\.(pdf)$";
-        String imagePattern = "(?i)\\.(jpeg|jpg|gif|png|bmp|tiff|webp)$";
+        String youtubePattern = "(https?://)?(www\\.)?(youtube|youtu|youtube-nocookie)\\.(com|be)/";
+        String pdfPattern = "\\.pdf$";
+        String imagePattern = "\\.(jpeg|jpg|gif|png|bmp|tiff|webp)$";
 
         if (Pattern.compile(youtubePattern).matcher(url).find()) {
             return "youtube";
@@ -104,4 +105,6 @@ public class UrlController {
             return "web";
         }
     }
+
+
 }
