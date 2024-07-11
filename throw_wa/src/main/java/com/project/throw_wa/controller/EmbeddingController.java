@@ -20,6 +20,7 @@ public class EmbeddingController {
         log.info("임베딩: {}", request.getEmbedding());
         log.info("아이디: {}", request.getId());
         log.info("링크: {}", request.getLink());
+        log.info("type: {}", request.getType());
 
         try {
             // FastAPI 서버로 전송
