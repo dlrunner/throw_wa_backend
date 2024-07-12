@@ -1,6 +1,7 @@
 package com.project.throw_wa.member.contoller;
 
 import com.project.throw_wa.member.dto.MemberCreateDto;
+import com.project.throw_wa.member.entity.Member;
 import com.project.throw_wa.member.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +34,7 @@ public class MemberController {
                             .toList()
             );
         }
-        return memberService.createMember(memberCreateDto);
+        Member member = memberCreateDto.toMember();
+        return memberService.createMember(member);
     }
 }
