@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -61,9 +63,12 @@ public class UrlController {
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
 
+            String currentDate = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+
             // 파이썬 API에 보낼 데이터
             Map<String, String> requestData = new HashMap<>();
             requestData.put("url", url);
+            requestData.put("date", currentDate);
             log.info("Sending request to Python API: {}", apiUrl);
 
             HttpEntity<Map<String, String>> entity = new HttpEntity<>(requestData, headers);
