@@ -15,4 +15,6 @@ public class EmbeddingRequest {
     private String link;
     private String type;
     private String date;
+    private String summary;
+    private String keyword;
 }
