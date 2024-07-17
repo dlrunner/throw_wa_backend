@@ -16,6 +16,9 @@ public class KakaoMemberClient implements OAuthMemberClient {
     String kakaoClientId;
     @Value("${KAKAO.CLIENT.SECRET}")
     String kakaoClientSecret;
+    @Value("${KAKAO.REDIRECT.URI}")
+    String kakaoRedirectUri;
+
 
     @Override
     public OAuthServerType supportServer() {
@@ -34,7 +37,7 @@ public class KakaoMemberClient implements OAuthMemberClient {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", kakaoClientId);
-        params.add("redirect_uri", "http://localhost:5173/oauth2/callback/kakao");
+        params.add("redirect_uri", kakaoRedirectUri);
         params.add("code", authCode);
         params.add("client_secret", kakaoClientSecret);
         return params;

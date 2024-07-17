@@ -11,8 +11,8 @@ public class KakaoAuthCodeRequestUrlUrlProvider implements AuthCodeRequestUrlPro
 
     @Value("${KAKAO.CLIENT.ID}")
     String kakaoClientId;
-    @Value("${KAKAO.CLIENT.SECRET}")
-    String kakaoClientSecret;
+    @Value("${KAKAO.REDIRECT.URI}")
+    String kakaoRedirectUri;
 
     @Override
     public OAuthServerType supportServer() {
@@ -25,7 +25,7 @@ public class KakaoAuthCodeRequestUrlUrlProvider implements AuthCodeRequestUrlPro
                 .fromUriString("https://kauth.kakao.com/oauth/authorize")
                 .queryParam("response_type", "code")
                 .queryParam("client_id", kakaoClientId)
-                .queryParam("redirect_uri", "http://localhost:5173/oauth2/callback/kakao")
+                .queryParam("redirect_uri", kakaoRedirectUri)
                 .queryParam("scope", "profile_nickname")
                 .toUriString();
 
