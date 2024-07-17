@@ -24,6 +24,7 @@ public class EmbeddingController {
         log.info("date: {}", request.getDate());
         log.info("summary: {}", request.getSummary());
         log.info("keyword: {}", request.getKeyword());
+        log.info("title: {}", request.getTitle());
 
         try {
             // FastAPI 서버로 전송
