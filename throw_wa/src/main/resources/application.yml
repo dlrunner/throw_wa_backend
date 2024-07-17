@@ -21,7 +21,7 @@ spring:
           kakao:
             client-id: ${KAKAO.CLIENT.ID}
             client-secret: ${KAKAO.CLIENT.SECRET}
-            redirect-uri: http://localhost:5173/oauth2/callback/kakao
+            redirect-uri: ${KAKAO.REDIRECT.URI}
             client-authentication-method: 'client_secret_post'
             authorization-grant-type: authorization_code
             scope:
@@ -40,3 +40,12 @@ logging:
   level:
     root: info
     com.project.throw_wa: info
+cloud:
+  aws:
+    s3:
+      bucket: bucket-throw.wa
+    credentials:
+      access-key: ${AWS_S3_ACCESS_KEY_ID}
+      secret-key: ${AWS_S3_SECRET_ACCESS_KEY}
+    region:
+      static: ap-northeast-2
