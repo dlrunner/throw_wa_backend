@@ -3,6 +3,7 @@ package com.project.throw_wa.model;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -13,4 +14,7 @@ public class EmbeddingRequest {
     private List<Float> embedding;
     private String link;
     private String type;
+    private String date;
+    private String summary;
+    private String keyword;
 }
