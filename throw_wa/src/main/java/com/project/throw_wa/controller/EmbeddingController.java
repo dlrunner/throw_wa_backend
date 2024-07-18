@@ -17,14 +17,16 @@ public class EmbeddingController {
 
     @PostMapping("/embedding")
     public ResponseEntity<String> receiveEmbedding(@RequestBody EmbeddingRequest request) {
-        log.info("임베딩: {}", request.getEmbedding());
-        log.info("아이디: {}", request.getId());
-        log.info("링크: {}", request.getLink());
-        log.info("type: {}", request.getType());
-        log.info("date: {}", request.getDate());
-        log.info("summary: {}", request.getSummary());
-        log.info("keyword: {}", request.getKeyword());
-        log.info("title: {}", request.getTitle());
+//        log.info("임베딩: {}", request.getEmbedding());
+//        log.info("아이디: {}", request.getId());
+//        log.info("링크: {}", request.getLink());
+//        log.info("type: {}", request.getType());
+//        log.info("date: {}", request.getDate());
+//        log.info("summary: {}", request.getSummary());
+//        log.info("keyword: {}", request.getKeyword());
+//        log.info("title: {}", request.getTitle());
+//        log.info("s3Key: {}", request.getS3Key());
+//        log.info("s3Url: {}", request.getS3Url());
 
         try {
             // FastAPI 서버로 전송

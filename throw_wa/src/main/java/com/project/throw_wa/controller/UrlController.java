@@ -68,6 +68,7 @@ public class UrlController {
             // 파이썬 API에 보낼 데이터
             Map<String, String> requestData = new HashMap<>();
             requestData.put("url", url);
+            log.info("url: {}", url);
             requestData.put("date", currentDate);
             log.info("Sending request to Python API: {}", apiUrl);
 
