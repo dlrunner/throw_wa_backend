@@ -3,12 +3,11 @@ package com.project.throw_wa.model;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
 @Setter
-public class EmbeddingRequest {
+public class EmbeddingS3Request {
 
     private String id;
     private List<Float> embedding;
@@ -18,4 +17,7 @@ public class EmbeddingRequest {
     private String summary;
     private String keyword;
     private String title;
+    private String s3OriginalFilename;
+    private String s3Key;
+    private String s3Url;
 }

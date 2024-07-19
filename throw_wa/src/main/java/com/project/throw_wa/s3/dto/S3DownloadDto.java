@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class S3CreateDto {
-    private String originalFilename; // 업로드한 파일명
+public class S3DownloadDto {
+    private String originalFilename;
     private String key; // S3파일 식별자
     private String url; // S3파일 url
 }
