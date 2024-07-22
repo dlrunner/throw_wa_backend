@@ -1,6 +1,8 @@
 package com.project.throw_wa.oauth;
 
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -10,6 +12,7 @@ import org.springframework.util.MultiValueMap;
 @RequiredArgsConstructor
 public class KakaoMemberClient implements OAuthMemberClient {
 
+    private static final Logger log = LoggerFactory.getLogger(KakaoMemberClient.class);
     private final KakaoApiClient kakaoApiClient;
 
     @Value("${KAKAO.CLIENT.ID}")
@@ -32,6 +35,7 @@ public class KakaoMemberClient implements OAuthMemberClient {
                 kakaoApiClient.fetchMember("Bearer " + tokenInfo.accessToken());  // (2)
         return kakaoMemberResponse.toDomain();  // (3)
     }
+//    rotoRl
 
     private MultiValueMap<String, String> tokenRequestParams(String authCode) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
