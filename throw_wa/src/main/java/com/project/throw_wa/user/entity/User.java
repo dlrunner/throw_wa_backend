@@ -18,23 +18,21 @@ public class User {
     @Id
     @GeneratedValue
     private long id;
-    private String userId;
-    private String password;
     private String email;
+    private String password;
     private String name;
     private String type;
     private String role;
 
     public User(SignUpRequestDto dto) {
-        this.userId = dto.getUserId();
-        this.password = dto.getPassword();
         this.email = dto.getEmail();
+        this.password = dto.getPassword();
+        this.name = dto.getName();
         this.type = "app";
         this.role = "ROLE_USER";
     }
 
     public User(String userId, String email, String type) {
-        this.userId = userId;
         this.password = "Passw0rd";
         this.email = email;
         this.type = type;
