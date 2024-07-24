@@ -60,6 +60,9 @@ public class EmbeddingController {
 //        log.info("summary: {}", request.getSummary());
 //        log.info("keyword: {}", request.getKeyword());
 //        log.info("title: {}", request.getTitle());
+        log.info("S3OriginalFilename: {}", request.getS3OriginalFilename());
+        log.info("S3Key: {}", request.getS3Key());
+        log.info("S3Url: {}", request.getS3Url());
 
         try {
             // FastAPI 서버로 전송
