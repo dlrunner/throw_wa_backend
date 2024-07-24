@@ -22,7 +22,9 @@ jobs:
         run: chmod +x throw_wa_backend/throw_wa/gradlew
 
       - name: Build with Gradle
-        run: throw_wa_backend/throw_wa/./gradlew build -x test
+        run: |
+          cd throw_wa_backend/throw_wa
+          ./gradlew build -x test
 
   test:
     runs-on: ubuntu-latest
@@ -42,7 +44,9 @@ jobs:
         run: chmod +x throw_wa_backend/throw_wa/gradlew
 
       - name: Test with Gradle
-        run: throw_wa_backend/throw_wa/./gradlew test
+        run: |
+          cd throw_wa_backend/throw_wa
+          ./gradlew test
 
   docker:
     runs-on: ubuntu-latest
@@ -59,7 +63,8 @@ jobs:
 
       - name: Docker build & push to Docker Hub
         run: |
-          docker build -f throw_wa_backend/throw_wa/Dockerfile -t ${{ secrets.DOCKER_REPO_SPRING }}:latest .
+          cd throw_wa_backend/throw_wa
+          docker build -t ${{ secrets.DOCKER_REPO_SPRING }}:latest .
           docker tag ${{ secrets.DOCKER_REPO_SPRING }}:latest ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO_SPRING }}:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO_SPRING }}:latest
 
