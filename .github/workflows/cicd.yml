@@ -45,7 +45,7 @@ jobs:
       - name: Docker build & push to Docker Hub
         run: |
           cd throw_wa/
-          docker build -t ${{ secrets.DOCKER_REPO_SPRING }}:latest -f Dockerfile .
+          docker build -t ${{ secrets.DOCKER_REPO_SPRING }}:latest .
           docker tag ${{ secrets.DOCKER_REPO_SPRING }}:latest ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO_SPRING }}:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO_SPRING }}:latest
 
