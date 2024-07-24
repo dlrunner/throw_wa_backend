@@ -5,10 +5,12 @@ on:
     branches: ["main"]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     steps:
-      # Gradle로 JDK 17버전 세팅    
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -16,50 +18,64 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
           
-      # Gradlew 권한 부여
       - name: Add permission for gradlew
         run: chmod +x gradlew
 
-      # Copy application.yml
-      - name: Copy Private Files
-        run: ./gradlew build
-
-      # Gradle 빌드 진행
       - name: Build with Gradle
-        uses: gradle/gradle-build-action@v2
-        with:
-          arguments: build -x test
+        run: ./gradlew build -x test
 
-      # 테스트 진행
-      - name: Test
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Add permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Test with Gradle
         run: ./gradlew test
 
-      # Docker 로그인
+  docker:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Docker Login
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Docker build 및 docker hub로 push
-      - name: Docker build & push to docker repo
+      - name: Docker build & push to Docker Hub
         run: |
-          docker build -f Dockerfile -t ${{ secrets.DOCKER_REPO_SPRING }} .
-          docker tag  ${{ secrets.DOCKER_REPO_SPRING }}:latest ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO_SPRING }}:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO_SPRING }}
+          docker build -f throw_wa_backend/throw_wa/Dockerfile -t ${{ secrets.DOCKER_REPO_SPRING }}:latest .
+          docker tag ${{ secrets.DOCKER_REPO_SPRING }}:latest ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO_SPRING }}:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO_SPRING }}:latest
 
-      # ssh 접속 및 명령어로 기존 컨테이너를 내리고, 이미지를 업데이트해 배포한다.
-      - name: Deploy to server
+  deploy:
+    runs-on: ubuntu-latest
+    needs: docker
+    steps:
+      - name: SSH and deploy
         uses: appleboy/ssh-action@master
-        id: deploy
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_PEMKEY }}
-          envs: GITHUB_SHA
           script: |
-            sudo docker stop spring-boot-app
-            sudo docker rm spring-boot-app
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO_SPRING }}:latest
-            sudo docker run --name spring-boot-app -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO_SPRING }}
+            cd /home/ubuntu/
+            sudo docker-compose down
+            sudo docker-compose pull
+            sudo docker-compose up -d
             sudo docker image prune -f
