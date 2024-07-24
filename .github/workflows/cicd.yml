@@ -32,6 +32,9 @@ jobs:
       - name: List build/libs files
         run: ls -al throw_wa/build/libs
 
+      - name: List build/libs directory
+        run: ls -al throw_wa/build/libs
+
   test:
     runs-on: ubuntu-latest
     needs: build
