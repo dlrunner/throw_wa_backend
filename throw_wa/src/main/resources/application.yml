@@ -22,8 +22,9 @@ spring:
             client-id: ${KAKAO.CLIENT.ID}
             client-secret: ${KAKAO.CLIENT.SECRET}
             redirect-uri: ${KAKAO.REDIRECT.URI}
-            client-authentication-method: 'client_secret_post'
             authorization-grant-type: authorization_code
+            client-authentication-method: 'client_secret_post'
+            client-name: kakao
             scope:
               - profile_nickname
         provider:
@@ -40,6 +41,9 @@ logging:
   level:
     root: info
     com.project.throw_wa: info
+    org:
+      springframework:
+        security: info
 cloud:
   aws:
     s3:

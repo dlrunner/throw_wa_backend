@@ -1,9 +1,9 @@
 package com.project.throw_wa.oauth;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies.SnakeCaseStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
-@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonNaming(SnakeCaseStrategy.class)
 public record KakaoToken (
     String tokenType,
     String accessToken,
