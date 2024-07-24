@@ -22,11 +22,11 @@ jobs:
           cache: 'gradle'
 
       - name: Add permission for gradlew
-        run: chmod +x throw_wa_backend/throw_wa/gradlew
+        run: chmod +x throw_wa/gradlew
 
       - name: Build with Gradle
         run: |
-          cd throw_wa_backend/throw_wa
+          cd throw_wa
           ./gradlew build -x test
 
   test:
@@ -44,11 +44,11 @@ jobs:
           cache: 'gradle'
 
       - name: Add permission for gradlew
-        run: chmod +x throw_wa_backend/throw_wa/gradlew
+        run: chmod +x throw_wa/gradlew
 
       - name: Test with Gradle
         run: |
-          cd throw_wa_backend/throw_wa
+          cd throw_wa
           ./gradlew test
 
   docker:
