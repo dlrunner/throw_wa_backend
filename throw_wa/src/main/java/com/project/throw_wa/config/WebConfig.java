@@ -26,7 +26,6 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowCredentials(true)
                 .exposedHeaders("*");
     }
-
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(new OAuthServerTypeConverter());
