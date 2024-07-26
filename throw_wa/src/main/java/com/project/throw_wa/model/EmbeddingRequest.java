@@ -18,4 +18,6 @@ public class EmbeddingRequest {
     private String summary;
     private String keyword;
     private String title;
+    private String userId;
+    private String userName;
 }
