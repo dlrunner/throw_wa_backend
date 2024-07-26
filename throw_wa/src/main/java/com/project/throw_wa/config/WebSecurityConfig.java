@@ -70,7 +70,7 @@ public class WebSecurityConfig {
 
         CorsConfiguration corsConfiguration = new CorsConfiguration();
 //        corsConfiguration.addAllowedOrigin("http://localhost:5173");
-        corsConfiguration.addAllowedOrigin("chrome-extension://iajcdckkklechdcecpibnobloflelafk");
+        corsConfiguration.addAllowedOrigin("chrome-extension://mhmihpomhcljfcbbhnnagjbccjgnbdoh");
 //        corsConfiguration.addAllowedOrigin("chrome-extension://mhmihpomhcljfcbbhnnagjbccjgnbdoh");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
