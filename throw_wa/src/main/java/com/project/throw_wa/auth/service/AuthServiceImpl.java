@@ -6,7 +6,6 @@ import com.project.throw_wa.auth.response.EmailCheckResponseDto;
 import com.project.throw_wa.jwt.dto.ResponseDto;
 import com.project.throw_wa.jwt.provider.JwtProvider;
 import com.project.throw_wa.user.entity.*;
-import com.project.throw_wa.user.repository.UserRespository;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
@@ -32,7 +31,6 @@ public class AuthServiceImpl implements AuthService {
     @Value("${PINECONE.INDEX.NAME}")
     private String pineconeIndexName;
 
-    private final UserRespository userRespository;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -41,8 +39,14 @@ public class AuthServiceImpl implements AuthService {
         try {
 
             String email = dto.getEmail();
-            boolean isExistEmail = userRespository.existsByEmail(email);
-            if (isExistEmail) return EmailCheckResponseDto.duplicateId();
+
+            String namespace = "user";
+            Pinecone pc = new Pinecone.Builder(pineconeApiKey).build();
+            Index index = pc.getIndexConnection(pineconeIndexName);
+
+            QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(1, dto.getEmail(), namespace, null, true, true);
+            log.info("queryResponse: {}", queryResponse);
+            if (!queryResponse.getMatchesList().isEmpty()) return EmailCheckResponseDto.duplicateId();
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -63,7 +67,6 @@ public class AuthServiceImpl implements AuthService {
 
             QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(1, dto.getEmail(), namespace, null, true, true);
             log.info("queryResponse: {}", queryResponse);
-//            boolean isExistEmail = userRespository.existsByEmail(email);]
             if (!queryResponse.getMatchesList().isEmpty()) return SignUpResponseDto.duplicateId();
 
             String password = dto.getPassword();
@@ -122,7 +125,7 @@ public class AuthServiceImpl implements AuthService {
 
             if (!isMatch) return SignInResponseDto.singInFail();
 
-            String confirmEmail = queryResponse.getMatchesList().get(0).getMetadata().getFieldsOrThrow("email").getStringValue();
+            String confirmEmail = matchedVector.getMetadata().getFieldsOrThrow("email").getStringValue();
             log.info("confirmEmail: {}", confirmEmail);
             token = jwtProvider.create(confirmEmail);
             log.info("token: {}", token);

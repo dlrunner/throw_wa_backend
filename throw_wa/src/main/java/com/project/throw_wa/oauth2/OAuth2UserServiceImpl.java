@@ -2,7 +2,6 @@ package com.project.throw_wa.oauth2;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.throw_wa.user.entity.User;
-import com.project.throw_wa.user.repository.UserRespository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -18,7 +17,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class OAuth2UserServiceImpl extends DefaultOAuth2UserService {
 
-    private final UserRespository userRespository;
+//    private final UserRespository userRespository;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest request) throws OAuth2AuthenticationException {
@@ -44,7 +43,7 @@ public class OAuth2UserServiceImpl extends DefaultOAuth2UserService {
             user = new User(userId, "email@email.com", "kakao");
         }
 
-        userRespository.save(user);
+//        userRespository.save(user);
 
         return new CustomOAuth2User(userId);
     }
