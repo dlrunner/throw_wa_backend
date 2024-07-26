@@ -20,4 +20,6 @@ public class EmbeddingS3Request {
     private String s3OriginalFilename;
     private String s3Key;
     private String s3Url;
+    private String userId;
+    private String userName;
 }

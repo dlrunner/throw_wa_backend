@@ -1,5 +1,11 @@
 package com.project.throw_wa.controller;
 
+import com.project.throw_wa.jwt.provider.JwtProvider;
+import io.pinecone.clients.Index;
+import io.pinecone.clients.Pinecone;
+import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
+import io.pinecone.unsigned_indices_model.ScoredVectorWithUnsignedIndices;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,15 +26,21 @@ import java.util.regex.Pattern;
 
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class UrlController {
 
     private static final Logger log = LoggerFactory.getLogger(UrlController.class);
 
     @Value("${PYTHON.API.URL}")
     private String pythonApiUrl;
+    @Value("${PINECONE.API.KEY}")
+    private String pineconeApiKey;
+    @Value("${PINECONE.INDEX.NAME}")
+    private String pineconeIndexName;
 
     @Autowired
     private RestTemplate restTemplate;
+    private final JwtProvider jwtProvider;
 
     @PostMapping("/url")
     public ResponseEntity<Map<String, Object>> processUrl(@RequestBody Map<String, String> request) {
@@ -43,16 +55,16 @@ public class UrlController {
         String apiUrl;
         switch (linkType) {
             case "youtube":
-                apiUrl = "http://fastapi-app:8000/api/youtube_text";
+                apiUrl = "http://localhost:8000/api/youtube_text";
                 break;
             case "pdf":
-                apiUrl = "http://fastapi-app:8000/api/pdf_text";
+                apiUrl = "http://localhost:8000/api/pdf_text";
                 break;
             case "image":
-                apiUrl = "http://fastapi-app:8000/api/image_embedding";
+                apiUrl = "http://localhost:8000/api/image_embedding";
                 break;
             case "web":
-                apiUrl = "http://fastapi-app:8000/api/crawler";
+                apiUrl = "http://localhost:8000/api/crawler";
                 break;
             default:
                 log.warn("Unsupported URL type detected: {}", linkType);
@@ -75,6 +87,23 @@ public class UrlController {
             log.info("url: {}", url);
             requestData.put("date", currentDate);
             log.info("Sending request to Python API: {}", apiUrl);
+
+            // jwt 토큰 -> userId
+            String token = request.get("token");
+//            log.info("token: {}", token);
+            String email = jwtProvider.validate(token);
+//            log.info("email: {}", email);
+
+            String namespace = "user";
+            Pinecone pc = new Pinecone.Builder(pineconeApiKey).build();
+            Index index = pc.getIndexConnection(pineconeIndexName);
+            QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(1, email, namespace, null, true, true);
+//            log.info("queryResponse: {}", queryResponse);
+            ScoredVectorWithUnsignedIndices matchedVector = queryResponse.getMatchesList().get(0);
+            String userName = matchedVector.getMetadata().getFieldsOrThrow("name").getStringValue();
+
+            requestData.put("userId", email);
+            requestData.put("userName", userName);
 
             HttpEntity<Map<String, String>> entity = new HttpEntity<>(requestData, headers);
             ResponseEntity<Map<String, Object>> response = restTemplate.exchange(

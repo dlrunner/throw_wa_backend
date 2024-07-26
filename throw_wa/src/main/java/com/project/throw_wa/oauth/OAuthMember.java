@@ -17,23 +17,23 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = PROTECTED)
-@Table(name = "oauth_member",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "oauth_id_unique",
-                        columnNames = {
-                                "oauth_server_id",
-                                "oauth_server"
-                        }
-                ),
-        }
-)
+//@Table(name = "oauth_member",
+//        uniqueConstraints = {
+//                @UniqueConstraint(
+//                        name = "oauth_id_unique",
+//                        columnNames = {
+//                                "oauth_server_id",
+//                                "oauth_server"
+//                        }
+//                ),
+//        }
+//)
 public class OAuthMember {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Embedded
+//    @Embedded
     private OAuthId oauthId;
     private String nickname;
     private String profileImageUrl;

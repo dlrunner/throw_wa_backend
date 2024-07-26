@@ -1,14 +1,17 @@
 package com.project.throw_wa.jwt.filter;
 
 import com.project.throw_wa.jwt.provider.JwtProvider;
-import com.project.throw_wa.user.entity.User;
-import com.project.throw_wa.user.repository.UserRespository;
+import io.pinecone.clients.Index;
+import io.pinecone.clients.Pinecone;
+import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
+import io.pinecone.unsigned_indices_model.ScoredVectorWithUnsignedIndices;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -29,8 +32,12 @@ import java.util.List;
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    @Value("${PINECONE.API.KEY}")
+    private String pineconeApiKey;
+    @Value("${PINECONE.INDEX.NAME}")
+    private String pineconeIndexName;
+
     private final JwtProvider jwtProvider;
-    private final UserRespository userRespository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -49,8 +56,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            User user = userRespository.findByEmail(email);
-            String role = user.getRole(); // security 때문에 role의 값에는 ROLE_가 반드시 들어가야한다
+            String namespace = "user";
+            Pinecone pc = new Pinecone.Builder(pineconeApiKey).build();
+            Index index = pc.getIndexConnection(pineconeIndexName);
+
+            QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(1, email, namespace, null, true, true);
+            log.info("queryResponse: {}", queryResponse);
+            ScoredVectorWithUnsignedIndices matchedVector = queryResponse.getMatchesList().get(0);
+            String role = matchedVector.getMetadata().getFieldsOrThrow("role").getStringValue(); // security 때문에 role의 값에는 ROLE_가 반드시 들어가야한다
 
             List<GrantedAuthority> authorities = new ArrayList<>();
             authorities.add(new SimpleGrantedAuthority(role));
