@@ -105,6 +105,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("dto: {}", dto);
 
         String token = null;
+        String username = null;
 
         try {
             QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(1, dto.getEmail(), namespace, null, true, true);
@@ -125,6 +126,9 @@ public class AuthServiceImpl implements AuthService {
 
             if (!isMatch) return SignInResponseDto.singInFail();
 
+            username = matchedVector.getMetadata().getFieldsOrThrow("name").getStringValue();
+            log.info("username: {}", username);
+
             String confirmEmail = matchedVector.getMetadata().getFieldsOrThrow("email").getStringValue();
             log.info("confirmEmail: {}", confirmEmail);
             token = jwtProvider.create(confirmEmail);
@@ -134,6 +138,6 @@ public class AuthServiceImpl implements AuthService {
             log.error(e.getMessage());
         }
 
-        return SignInResponseDto.success(token);
+        return SignInResponseDto.success(token, username);
     }
 }
