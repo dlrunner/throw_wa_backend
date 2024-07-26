@@ -15,7 +15,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:5173", "http://localhost:8000", "chrome-extension://mhmihpomhcljfcbbhnnagjbccjgnbdoh") // React 앱의 도메인 허용
+                .allowedOrigins("http://localhost:5173", "http://localhost:8000", "chrome-extension://iajcdckkklechdcecpibnobloflelafk") // React 앱의 도메인 허용
                 .allowedMethods(
                         HttpMethod.GET.name(),
                         HttpMethod.POST.name(),
@@ -26,6 +26,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowCredentials(true)
                 .exposedHeaders("*");
     }
+
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(new OAuthServerTypeConverter());

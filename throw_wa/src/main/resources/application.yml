@@ -34,6 +34,14 @@ spring:
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-info-authentication-method: POST
             user-name-attribute: id
+  ai:
+    vectorstore:
+      pinecone:
+        api-key: ${PINECONE.API.KEY}
+        environment: ${PINECONE.ENVIRONMENT}
+        project-id: ${PINECONE.PROJECT.ID}
+        index-name: ${PINECONE.INDEX.NAME}
+
 jwt:
   token: ${JWT.SECRET.KEY}
 
