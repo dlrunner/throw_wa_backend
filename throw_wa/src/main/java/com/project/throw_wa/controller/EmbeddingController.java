@@ -32,7 +32,7 @@ public class EmbeddingController {
         try {
             // FastAPI 서버로 전송
             RestTemplate restTemplate = new RestTemplate();
-            String fastapiUrl = "http://localhost:8000/api/vector_upsert";
+            String fastapiUrl = "http://fastapi-app:8000/api/vector_upsert";
             HttpEntity<EmbeddingRequest> httpRequest = new HttpEntity<>(request);
             log.info("파이썬 서버로 찌르는 url : {}", fastapiUrl);
 
@@ -69,7 +69,7 @@ public class EmbeddingController {
         try {
             // FastAPI 서버로 전송
             RestTemplate restTemplate = new RestTemplate();
-            String fastapiUrl = "http://localhost:8000/api/vector_s3_upsert";
+            String fastapiUrl = "http://fastapi-app:8000/api/vector_s3_upsert";
             HttpEntity<EmbeddingS3Request> httpRequest = new HttpEntity<>(request);
             log.info("파이썬 서버로 찌르는 url : {}", fastapiUrl);
 
