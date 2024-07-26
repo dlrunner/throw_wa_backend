@@ -44,7 +44,7 @@ public class AuthServiceImpl implements AuthService {
             Pinecone pc = new Pinecone.Builder(pineconeApiKey).build();
             Index index = pc.getIndexConnection(pineconeIndexName);
 
-            QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(1, dto.getEmail(), namespace, null, true, true);
+            QueryResponseWithUnsignedIndices queryResponse = index.query(1,null,null,null,dto.getEmail(), namespace, null, true, true);
             log.info("queryResponse: {}", queryResponse);
             if (!queryResponse.getMatchesList().isEmpty()) return EmailCheckResponseDto.duplicateId();
 
@@ -124,6 +124,7 @@ public class AuthServiceImpl implements AuthService {
 
             boolean isMatch = passwordEncoder.matches(password, encodedPassword);
             log.info("isMatch: {}", isMatch);
+
             if (!isMatch) {
                 return SignInResponseDto.singInFail();
             }
