@@ -122,10 +122,9 @@ public class AuthServiceImpl implements AuthService {
             log.info("queryResponse: {}", queryResponse);
 
             ScoredVectorWithUnsignedIndices matchedVector = queryResponse.getMatchesList().get(0);
-            if (!queryResponse.getMatchesList().isEmpty()){
+            if (queryResponse.getMatchesList().isEmpty()) {
                 return SignInResponseDto.singInFail();
             }
-
             String password = dto.getPassword();
             log.info("password: {}", password);
 
