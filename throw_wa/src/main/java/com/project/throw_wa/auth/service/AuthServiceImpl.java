@@ -108,12 +108,23 @@ public class AuthServiceImpl implements AuthService {
         String username = null;
 
         try {
-            QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(1, dto.getEmail(), namespace, null, true, true);
+            List<Float> values = Arrays.asList(0.1f);
+            Struct filter = Struct.newBuilder()
+                    .putFields("email", com.google.protobuf.Value.newBuilder()
+                            .setStructValue(Struct.newBuilder()
+                                    .putFields("$eq", com.google.protobuf.Value.newBuilder()
+                                            .setStringValue(dto.getEmail())
+                                            .build()))
+                            .build())
+                    .build();
+
+            QueryResponseWithUnsignedIndices queryResponse = index.query(1, values, null, null, null, namespace, filter, false, true);
             log.info("queryResponse: {}", queryResponse);
 
-            if (!queryResponse.getMatchesList().isEmpty()) SignInResponseDto.singInFail();
-
             ScoredVectorWithUnsignedIndices matchedVector = queryResponse.getMatchesList().get(0);
+            if (!queryResponse.getMatchesList().isEmpty()){
+                return SignInResponseDto.singInFail();
+            }
 
             String password = dto.getPassword();
             log.info("password: {}", password);
@@ -127,7 +138,6 @@ public class AuthServiceImpl implements AuthService {
             if (!isMatch) return SignInResponseDto.singInFail();
 
             username = matchedVector.getMetadata().getFieldsOrThrow("name").getStringValue();
-            log.info("username: {}", username);
 
             String confirmEmail = matchedVector.getMetadata().getFieldsOrThrow("email").getStringValue();
             log.info("confirmEmail: {}", confirmEmail);
@@ -138,6 +148,6 @@ public class AuthServiceImpl implements AuthService {
             log.error(e.getMessage());
         }
 
-        return SignInResponseDto.success(token, username);
+        return SignInResponseDto.success(token ,username);
     }
 }
