@@ -40,7 +40,7 @@ spring:
         api-key: ${PINECONE.API.KEY}
         environment: ${PINECONE.ENVIRONMENT}
         project-id: ${PINECONE.PROJECT.ID}
-        index-name: ${PINECONE.INDEX.NAME}
+        index-name: ${PINECONE.INDEX.NAME.USER}
 
 jwt:
   token: ${JWT.SECRET.KEY}

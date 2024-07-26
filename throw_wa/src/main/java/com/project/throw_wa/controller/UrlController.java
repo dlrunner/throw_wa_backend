@@ -35,7 +35,7 @@ public class UrlController {
     private String pythonApiUrl;
     @Value("${PINECONE.API.KEY}")
     private String pineconeApiKey;
-    @Value("${PINECONE.INDEX.NAME}")
+    @Value("${PINECONE.INDEX.NAME.USER}")
     private String pineconeIndexName;
 
     @Autowired
