@@ -17,7 +17,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
@@ -101,8 +101,14 @@ public class UrlController {
             requestData.put("userId", email);
             requestData.put("userName", userName);
 
+            // 파일 경로 수정
+            String sharedDataPath = "/shared-data/" + Paths.get(url).getFileName();
+            File file = new File(sharedDataPath);
+            if (!file.exists()) {
+                throw new IOException("File not found: " + sharedDataPath);
+            }
+
             // 파일 읽어서 Base64로 인코딩
-            File file = new File(url);
             byte[] fileContent = FileUtils.readFileToByteArray(file);
             String encodedFile = Base64.getEncoder().encodeToString(fileContent);
             requestData.put("file", encodedFile);
