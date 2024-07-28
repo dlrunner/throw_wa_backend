@@ -143,7 +143,7 @@ public class UrlController {
         }
     }
 
-    @PostMapping("/upload")
+    @PostMapping("/FileUpload")
     public ResponseEntity<Map<String, Object>> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("token") String token) {
         log.info("uploadFile 호출됨");
 
