@@ -6,21 +6,20 @@ import io.pinecone.clients.Pinecone;
 import io.pinecone.unsigned_indices_model.QueryResponseWithUnsignedIndices;
 import io.pinecone.unsigned_indices_model.ScoredVectorWithUnsignedIndices;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -39,7 +38,8 @@ public class UrlController {
     @Value("${PINECONE.INDEX.NAME.USER}")
     private String pineconeIndexName;
 
-    private final RestTemplate restTemplate;
+    @Autowired
+    private RestTemplate restTemplate;
     private final JwtProvider jwtProvider;
 
     @PostMapping("/url")
@@ -77,44 +77,35 @@ public class UrlController {
         // 파이썬 API에 요청 보내기
         try {
             HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Content-Type", "application/json");
 
             String currentDate = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
 
             // 파이썬 API에 보낼 데이터
-            Map<String, Object> requestData = new HashMap<>();
+            Map<String, String> requestData = new HashMap<>();
             requestData.put("url", url);
             log.info("url: {}", url);
             requestData.put("date", currentDate);
+            log.info("Sending request to Python API: {}", apiUrl);
 
             // jwt 토큰 -> userId
             String token = request.get("token");
+//            log.info("token: {}", token);
             String email = jwtProvider.validate(token);
+//            log.info("email: {}", email);
 
             String namespace = "user";
             Pinecone pc = new Pinecone.Builder(pineconeApiKey).build();
             Index index = pc.getIndexConnection(pineconeIndexName);
             QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(1, email, namespace, null, true, true);
+//            log.info("queryResponse: {}", queryResponse);
             ScoredVectorWithUnsignedIndices matchedVector = queryResponse.getMatchesList().get(0);
             String userName = matchedVector.getMetadata().getFieldsOrThrow("name").getStringValue();
 
             requestData.put("userId", email);
             requestData.put("userName", userName);
 
-            // 파일 경로 수정
-            String fileName = Paths.get(url).getFileName().toString();
-            String sharedDataPath = "/shared-data/" + fileName;
-            File file = new File(sharedDataPath);
-            if (!file.exists()) {
-                throw new IOException("File not found: " + sharedDataPath);
-            }
-
-            // 파일 읽어서 Base64로 인코딩
-            byte[] fileContent = FileUtils.readFileToByteArray(file);
-            String encodedFile = Base64.getEncoder().encodeToString(fileContent);
-            requestData.put("file", encodedFile);
-
-            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestData, headers);
+            HttpEntity<Map<String, String>> entity = new HttpEntity<>(requestData, headers);
             ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
                     apiUrl, HttpMethod.POST, entity, new ParameterizedTypeReference<Map<String, Object>>() {});
 
@@ -129,12 +120,6 @@ public class UrlController {
                 errorResponse.put("message", "파이썬 API 호출 실패: " + response.getStatusCode());
                 return ResponseEntity.status(response.getStatusCode()).body(errorResponse);
             }
-        } catch (IOException e) {
-            log.error("Exception occurred while reading the file: {}", e.getMessage(), e);
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("message", "파일 읽기 오류: " + e.getMessage());
-            return ResponseEntity.status(500).body(errorResponse);
         } catch (Exception e) {
             log.error("Exception occurred while calling Python API: {}", e.getMessage(), e);
             Map<String, Object> errorResponse = new HashMap<>();
@@ -159,4 +144,6 @@ public class UrlController {
             return "web";
         }
     }
+
+
 }
