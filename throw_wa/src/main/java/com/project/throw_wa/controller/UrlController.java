@@ -102,7 +102,8 @@ public class UrlController {
             requestData.put("userName", userName);
 
             // 파일 경로 수정
-            String sharedDataPath = "/shared-data/" + Paths.get(url).getFileName();
+            String fileName = Paths.get(url).getFileName().toString();
+            String sharedDataPath = "/shared-data/" + fileName;
             File file = new File(sharedDataPath);
             if (!file.exists()) {
                 throw new IOException("File not found: " + sharedDataPath);
