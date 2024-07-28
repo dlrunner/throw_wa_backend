@@ -58,7 +58,7 @@ public class UrlController {
                 apiUrl = "http://fastapi-app:8000/api/youtube_text";
                 break;
             case "pdf":
-                apiUrl = "http://fastapi-app:8000/api/pdf_text";
+                apiUrl = "http://fastapi-app:8000/api/upload_pdf";
                 break;
             case "image":
                 apiUrl = "http://fastapi-app:8000/api/image_embedding";
