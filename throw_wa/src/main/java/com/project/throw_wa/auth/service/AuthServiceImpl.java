@@ -44,7 +44,17 @@ public class AuthServiceImpl implements AuthService {
             Pinecone pc = new Pinecone.Builder(pineconeApiKey).build();
             Index index = pc.getIndexConnection(pineconeIndexName);
 
-            QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(1, dto.getEmail(), namespace, null, true, true);
+            List<Float> values = Arrays.asList(0.1f);
+            Struct filter = Struct.newBuilder()
+                    .putFields("email", com.google.protobuf.Value.newBuilder()
+                            .setStructValue(Struct.newBuilder()
+                                    .putFields("$eq", com.google.protobuf.Value.newBuilder()
+                                            .setStringValue(email)
+                                            .build()))
+                            .build())
+                    .build();
+
+            QueryResponseWithUnsignedIndices queryResponse = index.query(1, values, null, null, null, namespace, filter, false, true);
             log.info("queryResponse: {}", queryResponse);
             if (!queryResponse.getMatchesList().isEmpty()) return EmailCheckResponseDto.duplicateId();
 
@@ -65,7 +75,17 @@ public class AuthServiceImpl implements AuthService {
             Pinecone pc = new Pinecone.Builder(pineconeApiKey).build();
             Index index = pc.getIndexConnection(pineconeIndexName);
 
-            QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(1, dto.getEmail(), namespace, null, true, true);
+            List<Float> values = Arrays.asList(0.1f);
+            Struct filter = Struct.newBuilder()
+                    .putFields("email", com.google.protobuf.Value.newBuilder()
+                            .setStructValue(Struct.newBuilder()
+                                    .putFields("$eq", com.google.protobuf.Value.newBuilder()
+                                            .setStringValue(dto.getEmail())
+                                            .build()))
+                            .build())
+                    .build();
+
+            QueryResponseWithUnsignedIndices queryResponse = index.query(1, values, null, null, null, namespace, filter, false, true);
             log.info("queryResponse: {}", queryResponse);
             if (!queryResponse.getMatchesList().isEmpty()) return SignUpResponseDto.duplicateId();
 
@@ -76,7 +96,6 @@ public class AuthServiceImpl implements AuthService {
             User user = new User(dto);
             log.info("user: {}", user);
 
-            List<Float> values = Arrays.asList(0.1f);
             Struct metaData = Struct.newBuilder()
                     .putFields("email", com.google.protobuf.Value.newBuilder().setStringValue(user.getEmail()).build())
                     .putFields("password", com.google.protobuf.Value.newBuilder().setStringValue(user.getPassword()).build())
