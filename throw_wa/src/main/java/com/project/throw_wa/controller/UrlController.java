@@ -1,5 +1,6 @@
 package com.project.throw_wa.controller;
 
+import com.google.protobuf.Struct;
 import com.project.throw_wa.jwt.provider.JwtProvider;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
@@ -10,18 +11,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.ParameterizedTypeReference;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -56,16 +58,16 @@ public class UrlController {
         String apiUrl;
         switch (linkType) {
             case "youtube":
-                apiUrl = "http://fastapi-app:8000/api/youtube_text";
+                apiUrl = "http://localhost:8000/api/youtube_text";
                 break;
             case "pdf":
-                apiUrl = "http://fastapi-app:8000/api/upload_pdf";
+                apiUrl = "http://localhost:8000/api/pdf_text";
                 break;
             case "image":
-                apiUrl = "http://fastapi-app:8000/api/image_embedding";
+                apiUrl = "http://localhost:8000/api/image_embedding";
                 break;
             case "web":
-                apiUrl = "http://fastapi-app:8000/api/crawler";
+                apiUrl = "http://localhost:8000/api/crawler";
                 break;
             default:
                 log.warn("Unsupported URL type detected: {}", linkType);
@@ -78,7 +80,7 @@ public class UrlController {
         // 파이썬 API에 요청 보내기
         try {
             HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Content-Type", "application/json");
 
             String currentDate = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
 
@@ -91,12 +93,25 @@ public class UrlController {
 
             // jwt 토큰 -> userId
             String token = request.get("token");
+//            log.info("token: {}", token);
             String email = jwtProvider.validate(token);
+//            log.info("email: {}", email);
 
             String namespace = "user";
             Pinecone pc = new Pinecone.Builder(pineconeApiKey).build();
             Index index = pc.getIndexConnection(pineconeIndexName);
-            QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(1, email, namespace, null, true, true);
+            List<Float> values = Arrays.asList(0.1f);
+            Struct filter = Struct.newBuilder()
+                    .putFields("email", com.google.protobuf.Value.newBuilder()
+                            .setStructValue(Struct.newBuilder()
+                                    .putFields("$eq", com.google.protobuf.Value.newBuilder()
+                                            .setStringValue(email)
+                                            .build()))
+                            .build())
+                    .build();
+
+            QueryResponseWithUnsignedIndices queryResponse = index.query(1, values, null, null, null, namespace, filter, false, true);
+            log.info("queryResponse: {}", queryResponse);
             ScoredVectorWithUnsignedIndices matchedVector = queryResponse.getMatchesList().get(0);
             String userName = matchedVector.getMetadata().getFieldsOrThrow("name").getStringValue();
 
@@ -142,5 +157,6 @@ public class UrlController {
             return "web";
         }
     }
+
 
 }
