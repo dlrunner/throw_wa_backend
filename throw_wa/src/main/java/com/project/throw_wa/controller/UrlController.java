@@ -1,5 +1,6 @@
 package com.project.throw_wa.controller;
 
+import com.google.protobuf.Struct;
 import com.project.throw_wa.jwt.provider.JwtProvider;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
@@ -20,7 +21,9 @@ import org.springframework.core.ParameterizedTypeReference;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -35,7 +38,7 @@ public class UrlController {
     private String pythonApiUrl;
     @Value("${PINECONE.API.KEY}")
     private String pineconeApiKey;
-    @Value("${PINECONE.INDEX.NAME}")
+    @Value("${PINECONE.INDEX.NAME.USER}")
     private String pineconeIndexName;
 
     @Autowired
@@ -97,8 +100,18 @@ public class UrlController {
             String namespace = "user";
             Pinecone pc = new Pinecone.Builder(pineconeApiKey).build();
             Index index = pc.getIndexConnection(pineconeIndexName);
-            QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(1, email, namespace, null, true, true);
-//            log.info("queryResponse: {}", queryResponse);
+            List<Float> values = Arrays.asList(0.1f);
+            Struct filter = Struct.newBuilder()
+                    .putFields("email", com.google.protobuf.Value.newBuilder()
+                            .setStructValue(Struct.newBuilder()
+                                    .putFields("$eq", com.google.protobuf.Value.newBuilder()
+                                            .setStringValue(email)
+                                            .build()))
+                            .build())
+                    .build();
+
+            QueryResponseWithUnsignedIndices queryResponse = index.query(1, values, null, null, null, namespace, filter, false, true);
+            log.info("queryResponse: {}", queryResponse);
             ScoredVectorWithUnsignedIndices matchedVector = queryResponse.getMatchesList().get(0);
             String userName = matchedVector.getMetadata().getFieldsOrThrow("name").getStringValue();
 

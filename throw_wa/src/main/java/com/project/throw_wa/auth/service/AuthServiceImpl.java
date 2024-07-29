@@ -28,7 +28,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Value("${PINECONE.API.KEY}")
     private String pineconeApiKey;
-    @Value("${PINECONE.INDEX.NAME}")
+    @Value("${PINECONE.INDEX.NAME.USER}")
     private String pineconeIndexName;
 
     private final JwtProvider jwtProvider;
@@ -107,12 +107,21 @@ public class AuthServiceImpl implements AuthService {
         String token = null;
 
         try {
-            QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(1, dto.getEmail(), namespace, null, true, true);
+            List<Float> values = Arrays.asList(0.1f);
+            Struct filter = Struct.newBuilder()
+                    .putFields("email", com.google.protobuf.Value.newBuilder()
+                            .setStructValue(Struct.newBuilder()
+                                    .putFields("$eq", com.google.protobuf.Value.newBuilder()
+                                            .setStringValue(dto.getEmail())
+                                            .build()))
+                            .build())
+                    .build();
+
+            QueryResponseWithUnsignedIndices queryResponse = index.query(1, values, null, null, null, namespace, filter, false, true);
             log.info("queryResponse: {}", queryResponse);
 
-            if (!queryResponse.getMatchesList().isEmpty()) SignInResponseDto.singInFail();
-
             ScoredVectorWithUnsignedIndices matchedVector = queryResponse.getMatchesList().get(0);
+            if (!queryResponse.getMatchesList().isEmpty()) SignInResponseDto.singInFail();
 
             String password = dto.getPassword();
             log.info("password: {}", password);

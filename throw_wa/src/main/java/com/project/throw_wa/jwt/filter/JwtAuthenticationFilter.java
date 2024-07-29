@@ -34,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Value("${PINECONE.API.KEY}")
     private String pineconeApiKey;
-    @Value("${PINECONE.INDEX.NAME}")
+    @Value("${PINECONE.INDEX.NAME.USER}")
     private String pineconeIndexName;
 
     private final JwtProvider jwtProvider;
