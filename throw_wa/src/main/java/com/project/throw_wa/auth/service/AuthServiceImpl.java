@@ -154,7 +154,7 @@ public class AuthServiceImpl implements AuthService {
 
             if (!isMatch) return SignInResponseDto.singInFail();
 
-            username = matchedVector.getMetadata().getFieldsOrThrow("username").getStringValue();
+            username = matchedVector.getMetadata().getFieldsOrThrow("name").getStringValue();
 
             String confirmEmail = matchedVector.getMetadata().getFieldsOrThrow("email").getStringValue();
             log.info("confirmEmail: {}", confirmEmail);
