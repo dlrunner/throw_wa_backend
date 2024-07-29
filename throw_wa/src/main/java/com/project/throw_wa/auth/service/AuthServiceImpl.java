@@ -124,6 +124,7 @@ public class AuthServiceImpl implements AuthService {
         log.info("dto: {}", dto);
 
         String token = null;
+        String username = null;
 
         try {
             List<Float> values = Arrays.asList(0.1f);
@@ -153,6 +154,8 @@ public class AuthServiceImpl implements AuthService {
 
             if (!isMatch) return SignInResponseDto.singInFail();
 
+            username = matchedVector.getMetadata().getFieldsOrThrow("username").getStringValue();
+
             String confirmEmail = matchedVector.getMetadata().getFieldsOrThrow("email").getStringValue();
             log.info("confirmEmail: {}", confirmEmail);
             token = jwtProvider.create(confirmEmail);
@@ -162,6 +165,6 @@ public class AuthServiceImpl implements AuthService {
             log.error(e.getMessage());
         }
 
-        return SignInResponseDto.success(token);
+        return SignInResponseDto.success(token, username);
     }
 }
