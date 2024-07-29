@@ -11,14 +11,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.ParameterizedTypeReference;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -58,16 +59,16 @@ public class UrlController {
         String apiUrl;
         switch (linkType) {
             case "youtube":
-                apiUrl = "http://localhost:8000/api/youtube_text";
+                apiUrl = "http://fastapi-app:8000/api/youtube_text";
                 break;
             case "pdf":
-                apiUrl = "http://localhost:8000/api/pdf_text";
+                apiUrl = "http://fastapi-app:8000/api/upload_pdf";
                 break;
             case "image":
-                apiUrl = "http://localhost:8000/api/image_embedding";
+                apiUrl = "http://fastapi-app:8000/api/image_embedding";
                 break;
             case "web":
-                apiUrl = "http://localhost:8000/api/crawler";
+                apiUrl = "http://fastapi-app:8000/api/crawler";
                 break;
             default:
                 log.warn("Unsupported URL type detected: {}", linkType);
@@ -80,7 +81,7 @@ public class UrlController {
         // 파이썬 API에 요청 보내기
         try {
             HttpHeaders headers = new HttpHeaders();
-            headers.set("Content-Type", "application/json");
+            headers.setContentType(MediaType.APPLICATION_JSON);
 
             String currentDate = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
 
@@ -93,9 +94,7 @@ public class UrlController {
 
             // jwt 토큰 -> userId
             String token = request.get("token");
-//            log.info("token: {}", token);
             String email = jwtProvider.validate(token);
-//            log.info("email: {}", email);
 
             String namespace = "user";
             Pinecone pc = new Pinecone.Builder(pineconeApiKey).build();
@@ -112,6 +111,7 @@ public class UrlController {
 
             QueryResponseWithUnsignedIndices queryResponse = index.query(1, values, null, null, null, namespace, filter, false, true);
             log.info("queryResponse: {}", queryResponse);
+
             ScoredVectorWithUnsignedIndices matchedVector = queryResponse.getMatchesList().get(0);
             String userName = matchedVector.getMetadata().getFieldsOrThrow("name").getStringValue();
 
@@ -157,6 +157,5 @@ public class UrlController {
             return "web";
         }
     }
-
 
 }

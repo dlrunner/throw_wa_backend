@@ -69,21 +69,18 @@ public class WebSecurityConfig {
     protected CorsConfigurationSource corsConfigurationSource() {
 
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-//        corsConfiguration.addAllowedOrigin("http://localhost:5173");
         corsConfiguration.addAllowedOrigin("chrome-extension://haiopfamngobgjlahbofhgdomhkgjobl");
-//        corsConfiguration.addAllowedOrigin("chrome-extension://iajcdckkklechdcecpibnobloflelafk");
-//        corsConfiguration.addAllowedOrigin("chrome-extension://dckjpeecojommioaankdmklbclnlkjjg");
-//        corsConfiguration.addAllowedOrigin("chrome-extension://mhmihpomhcljfcbbhnnagjbccjgnbdoh");
+        corsConfiguration.addAllowedOrigin("chrome-extension://ibajoaacbalbhmdofjpfhacjpaflmkma");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.setAllowCredentials(true);
-
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
 
         return source;
     }
 }
+
 
 class FailedAuthenticationEntryPoint implements AuthenticationEntryPoint {
 

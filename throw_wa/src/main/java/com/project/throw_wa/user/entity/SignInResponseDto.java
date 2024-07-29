@@ -11,16 +11,18 @@ import org.springframework.http.ResponseEntity;
 public class SignInResponseDto extends ResponseDto {
 
     private String token;
+    private String username;
     private int expirationTime;
 
-    private SignInResponseDto (String token) {
+    private SignInResponseDto (String token, String username) {
         super();
         this.token = token;
+        this.username = username;
         this.expirationTime = 3600;
     }
 
-    public static ResponseEntity<SignInResponseDto> success (String token) {
-        SignInResponseDto signInResponseDto = new SignInResponseDto(token);
+    public static ResponseEntity<SignInResponseDto> success (String token, String username) {
+        SignInResponseDto signInResponseDto = new SignInResponseDto(token, username);
         return ResponseEntity.status(HttpStatus.OK).body(signInResponseDto);
     }
 

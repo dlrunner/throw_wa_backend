@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class EmailCheckRequestDto {
 
-    @NotBlank
     private String email;
+
+    private String password;
+
+    private String name;
 }
