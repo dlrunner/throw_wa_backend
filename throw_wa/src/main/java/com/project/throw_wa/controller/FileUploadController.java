@@ -75,7 +75,7 @@ public class FileUploadController {
 
             HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestData, headers);
             ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                    "http://fastapi-app:8000/api/upload_pdf", HttpMethod.POST, entity, new ParameterizedTypeReference<Map<String, Object>>() {});
+                    "http://localhost:8000/api/upload_pdf", HttpMethod.POST, entity, new ParameterizedTypeReference<Map<String, Object>>() {});
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 log.info("Successfully received response from Python API");

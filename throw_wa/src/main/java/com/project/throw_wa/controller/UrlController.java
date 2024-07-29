@@ -59,16 +59,16 @@ public class UrlController {
         String apiUrl;
         switch (linkType) {
             case "youtube":
-                apiUrl = "http://fastapi-app:8000/api/youtube_text";
+                apiUrl = "http://localhost:8000/api/youtube_text";
                 break;
             case "pdf":
-                apiUrl = "http://fastapi-app:8000/api/upload_pdf";
+                apiUrl = "http://localhost:8000/api/upload_pdf";
                 break;
             case "image":
-                apiUrl = "http://fastapi-app:8000/api/image_embedding";
+                apiUrl = "http://localhost:8000/api/image_embedding";
                 break;
             case "web":
-                apiUrl = "http://fastapi-app:8000/api/crawler";
+                apiUrl = "http://localhost:8000/api/crawler";
                 break;
             default:
                 log.warn("Unsupported URL type detected: {}", linkType);
