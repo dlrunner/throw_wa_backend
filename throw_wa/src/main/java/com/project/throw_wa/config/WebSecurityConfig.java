@@ -72,6 +72,8 @@ public class WebSecurityConfig {
 //        corsConfiguration.addAllowedOrigin("http://localhost:5173");
         corsConfiguration.addAllowedOrigin("chrome-extension://haiopfamngobgjlahbofhgdomhkgjobl");
 //        corsConfiguration.addAllowedOrigin("chrome-extension://iajcdckkklechdcecpibnobloflelafk");
+//        corsConfiguration.addAllowedOrigin("chrome-extension://dckjpeecojommioaankdmklbclnlkjjg");
+//        corsConfiguration.addAllowedOrigin("chrome-extension://mhmihpomhcljfcbbhnnagjbccjgnbdoh");
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.setAllowCredentials(true);
