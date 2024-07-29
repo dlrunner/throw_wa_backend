@@ -1,5 +1,6 @@
 package com.project.throw_wa.jwt.filter;
 
+import com.google.protobuf.Struct;
 import com.project.throw_wa.jwt.provider.JwtProvider;
 import io.pinecone.clients.Index;
 import io.pinecone.clients.Pinecone;
@@ -25,6 +26,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -60,7 +62,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Pinecone pc = new Pinecone.Builder(pineconeApiKey).build();
             Index index = pc.getIndexConnection(pineconeIndexName);
 
-            QueryResponseWithUnsignedIndices queryResponse = index.queryByVectorId(1, email, namespace, null, true, true);
+            List<Float> values = Arrays.asList(0.1f);
+            Struct filter = Struct.newBuilder()
+                    .putFields("email", com.google.protobuf.Value.newBuilder()
+                            .setStructValue(Struct.newBuilder()
+                                    .putFields("$eq", com.google.protobuf.Value.newBuilder()
+                                            .setStringValue(email)
+                                            .build()))
+                            .build())
+                    .build();
+
+            QueryResponseWithUnsignedIndices queryResponse = index.query(1, values, null, null, null, namespace, filter, false, true);
             log.info("queryResponse: {}", queryResponse);
             ScoredVectorWithUnsignedIndices matchedVector = queryResponse.getMatchesList().get(0);
             String role = matchedVector.getMetadata().getFieldsOrThrow("role").getStringValue(); // security 때문에 role의 값에는 ROLE_가 반드시 들어가야한다
