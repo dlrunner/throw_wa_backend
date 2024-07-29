@@ -165,6 +165,6 @@ public class AuthServiceImpl implements AuthService {
             log.error(e.getMessage());
         }
 
-        return SignInResponseDto.success(token ,username);
+        return SignInResponseDto.success(token, username);
     }
 }
